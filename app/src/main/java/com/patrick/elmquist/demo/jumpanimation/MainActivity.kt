@@ -35,28 +35,28 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             JumpAnimationTheme {
-                Screen()
+                MainScreen()
             }
         }
     }
 }
 
 @Composable
-private fun Screen() {
+fun MainScreen() {
     val state = remember { listOf("🍞️" to 0, "🍦" to 0, "🍿" to 0).toMutableStateMap() }
     val sortedState = state.toSortedMap().entries
 
-    val enableText = true
+    val textEnabled = true
     val text = sortedState
         .joinToString(separator = "  ") { (emoji, count) -> "$emoji:$count" }
-        .takeIf { state.values.any { it > 0 } && enableText }
+        .takeIf { state.values.any { it > 0 } && textEnabled }
 
     val textAlpha by animateFloatAsState(
         targetValue = if (text.isNullOrBlank()) 0f else 1f,
         label = "alpha animation"
     )
 
-    val paddingValues = if (enableText) {
+    val paddingValues = if (textEnabled) {
         PaddingValues(top = 152.dp, bottom = 48.dp)
     } else {
         PaddingValues(top = 112.dp, bottom = 48.dp)
@@ -106,7 +106,7 @@ private fun Screen() {
 }
 
 @Composable
-private fun JumpingEmoji(
+fun JumpingEmoji(
     emoji: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -119,12 +119,12 @@ private fun JumpingEmoji(
     )
 }
 
-private val backgroundColor = Color(0xFFFBEACC).copy(alpha = 0.48f)
+val backgroundColor = Color(0xFFFBEACC).copy(alpha = 0.48f)
 
 @Preview(showBackground = true)
 @Composable
-private fun ScreenPreview() {
+fun ScreenPreview() {
     JumpAnimationTheme {
-        Screen()
+        MainScreen()
     }
 }
