@@ -1,7 +1,6 @@
 package com.patrick.elmquist.demo.jumpanimation
 
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -12,11 +11,12 @@ import kotlinx.coroutines.launch
 
 @Stable
 class JumpAnimationState(
-    val scale: Animatable<Float, AnimationVector1D>,
-    val translation: Animatable<Float, AnimationVector1D>,
     val interactionSource: MutableInteractionSource,
     private val scope: CoroutineScope,
 ) {
+    val scale = Animatable(initialValue = 1f)
+    val translation = Animatable(initialValue = 0f)
+
     private var animation: Job? = null
 
     fun onPress() = launchAnimation {
@@ -30,7 +30,7 @@ class JumpAnimationState(
         scale.animateTo(pressedScale, defaultSpring)
 
         launch {
-            // overshoot the scale a bit as part of the launch
+            // restore the scale, the spring will cause a slight overshoot
             scale.animateTo(defaultScale, releaseScaleSpring)
         }
 

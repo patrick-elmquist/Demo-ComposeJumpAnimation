@@ -1,6 +1,5 @@
 package com.patrick.elmquist.demo.jumpanimation
 
-import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
@@ -23,8 +22,6 @@ fun rememberJumpAnimationState(
 ): JumpAnimationState {
     val state = remember(scope, interactionSource) {
         JumpAnimationState(
-            scale = Animatable(initialValue = 1f),
-            translation = Animatable(initialValue = 0f),
             scope = scope,
             interactionSource = interactionSource,
         )
@@ -44,20 +41,21 @@ fun rememberJumpAnimationState(
     return state
 }
 
-fun Modifier.jumpOnClick(state: JumpAnimationState): Modifier =
-    this then Modifier
-        .clickable(
-            interactionSource = state.interactionSource,
-            indication = null,
-            onClick = {/* clicks are handled by the state when the animation finishes */ },
+fun Modifier.jumpOnClick(
+    state: JumpAnimationState
+) = this then Modifier
+    .clickable(
+        interactionSource = state.interactionSource,
+        indication = null,
+        onClick = { /* this is handled in the state */ },
+    )
+    .graphicsLayer {
+        // set the origin to the bottom center to have the
+        // scale press down on the composable
+        transformOrigin = TransformOrigin(
+            pivotFractionX = 0.5f,
+            pivotFractionY = 1.0f,
         )
-        .graphicsLayer {
-            // set the origin to the bottom center to have the
-            // scale press down on the composable
-            transformOrigin = TransformOrigin(
-                pivotFractionX = 0.5f,
-                pivotFractionY = 1.0f,
-            )
-            scaleY = state.scale.value
-            translationY = state.translation.value * size.height
-        }
+        scaleY = state.scale.value
+        translationY = state.translation.value * size.height
+    }

@@ -46,7 +46,7 @@ fun MainScreen() {
     val state = remember { listOf("🍞️" to 0, "🍦" to 0, "🍿" to 0).toMutableStateMap() }
     val sortedState = state.toSortedMap().entries
 
-    val textEnabled = true
+    val textEnabled = false
     val text = sortedState
         .joinToString(separator = "  ") { (emoji, count) -> "$emoji:$count" }
         .takeIf { state.values.any { it > 0 } && textEnabled }
@@ -121,7 +121,7 @@ fun JumpingEmoji(
 
 val backgroundColor = Color(0xFFFBEACC).copy(alpha = 0.48f)
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, device = "id:pixel_7_pro")
 @Composable
 fun ScreenPreview() {
     JumpAnimationTheme {
