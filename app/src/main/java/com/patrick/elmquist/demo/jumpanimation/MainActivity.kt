@@ -4,9 +4,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement.Absolute.spacedBy
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -14,9 +17,8 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -39,74 +41,85 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-data class Item(
-    val emoji: String,
-    val withTopExpand: Boolean,
-    val withEndSquish: Boolean,
-)
-
 @Composable
 private fun Screen() {
-    val emojis = remember {
-        listOf(
-            Item("🍞", withTopExpand = false, withEndSquish = false),
-            Item("🍦", withTopExpand = false, withEndSquish = true),
-            
-            Item("🍿", withTopExpand = true, withEndSquish = true),
-        )
+    val state = remember { listOf("🍞️" to 0, "🍦" to 0, "🍿" to 0).toMutableStateMap() }
+    val sortedState = state.toSortedMap().entries
+
+    val enableText = true
+    val text = sortedState
+        .joinToString(separator = "  ") { (emoji, count) -> "$emoji:$count" }
+        .takeIf { state.values.any { it > 0 } && enableText }
+
+    val textAlpha by animateFloatAsState(
+        targetValue = if (text.isNullOrBlank()) 0f else 1f,
+        label = "alpha animation"
+    )
+
+    val paddingValues = if (enableText) {
+        PaddingValues(top = 152.dp, bottom = 48.dp)
+    } else {
+        PaddingValues(top = 112.dp, bottom = 48.dp)
     }
-    Column(
-        modifier = Modifier
-            .statusBarsPadding()
+
+    Box(
+        Modifier
             .fillMaxWidth()
-            .background(Color(0xFFFBEACC).copy(alpha = 0.48f))
-            .padding(top = 104.dp, bottom = 24.dp)
-            .padding(horizontal = 24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
+            .background(backgroundColor)
+            .statusBarsPadding()
     ) {
-        Row {
-            emojis.take(3).forEach { item ->
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(paddingValues)
+                .padding(horizontal = 16.dp),
+            horizontalArrangement = spacedBy(8.dp, alignment = Alignment.CenterHorizontally),
+        ) {
+            sortedState.forEach { (emoji, count) ->
                 JumpingEmoji(
-                    item = item,
+                    emoji = emoji,
+                    onClick = { state[emoji] = count + 1 },
                     modifier = Modifier.weight(1f),
                 )
             }
+        }
+
+        Column(
+            Modifier
+                .align(Alignment.TopCenter)
+                .alpha(textAlpha)
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(
+                text = "CLICKS",
+                style = Typography.labelSmall,
+                color = Color.DarkGray,
+            )
+            Text(
+                text = text.orEmpty(),
+                style = Typography.labelLarge,
+                color = Color.DarkGray,
+            )
         }
     }
 }
 
 @Composable
 private fun JumpingEmoji(
-    item: Item,
+    emoji: String,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var counter by remember { mutableIntStateOf(0) }
-    Column(
-        modifier = modifier,
-        verticalArrangement = spacedBy(32.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text(
-            text = item.emoji,
-            fontSize = 96.sp,
-            modifier = Modifier
-                .jumpOnClick(
-                    rememberJumpAnimationState(
-                        withTopExpand = item.withTopExpand,
-                        withEndSquish = item.withEndSquish,
-                        onClick = { counter++ },
-                    )
-                )
-        )
-
-        Text(
-            text = "Jumps: $counter",
-            style = Typography.titleMedium,
-            color = Color(0x8A000000),
-            modifier = Modifier.alpha(if (counter > 0) 1f else 0f),
-        )
-    }
+    Text(
+        text = emoji,
+        fontSize = 96.sp,
+        modifier = modifier
+            .jumpOnClick(rememberJumpAnimationState(onClick = onClick))
+    )
 }
+
+private val backgroundColor = Color(0xFFFBEACC).copy(alpha = 0.48f)
 
 @Preview(showBackground = true)
 @Composable

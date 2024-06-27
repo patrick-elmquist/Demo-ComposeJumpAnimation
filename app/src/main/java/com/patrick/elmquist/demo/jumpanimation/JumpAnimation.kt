@@ -2,7 +2,6 @@ package com.patrick.elmquist.demo.jumpanimation
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.runtime.Composable
@@ -17,12 +16,10 @@ import androidx.compose.ui.graphics.graphicsLayer
 import kotlinx.coroutines.CoroutineScope
 
 @Composable
-internal fun rememberJumpAnimationState(
+fun rememberJumpAnimationState(
     onClick: () -> Unit,
     scope: CoroutineScope = rememberCoroutineScope(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    withTopExpand: Boolean,
-    withEndSquish: Boolean,
 ): JumpAnimationState {
     val state = remember(scope, interactionSource) {
         JumpAnimationState(
@@ -30,8 +27,6 @@ internal fun rememberJumpAnimationState(
             translation = Animatable(initialValue = 0f),
             scope = scope,
             interactionSource = interactionSource,
-            withTopExpand = withTopExpand,
-            withEndSquish = withEndSquish,
         )
     }
 
@@ -49,16 +44,16 @@ internal fun rememberJumpAnimationState(
     return state
 }
 
-internal fun Modifier.jumpOnClick(state: JumpAnimationState): Modifier =
+fun Modifier.jumpOnClick(state: JumpAnimationState): Modifier =
     this then Modifier
         .clickable(
             interactionSource = state.interactionSource,
             indication = null,
-            onClick = {
-                // don't set click here, this is handled by the
-            },
+            onClick = {/* clicks are handled by the state when the animation finishes */ },
         )
         .graphicsLayer {
+            // set the origin to the bottom center to have the
+            // scale press down on the composable
             transformOrigin = TransformOrigin(
                 pivotFractionX = 0.5f,
                 pivotFractionY = 1.0f,
