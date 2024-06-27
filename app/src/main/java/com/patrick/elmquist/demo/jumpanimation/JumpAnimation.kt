@@ -2,6 +2,7 @@ package com.patrick.elmquist.demo.jumpanimation
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.runtime.Composable
@@ -19,7 +20,9 @@ import kotlinx.coroutines.CoroutineScope
 internal fun rememberJumpAnimationState(
     onClick: () -> Unit,
     scope: CoroutineScope = rememberCoroutineScope(),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    withTopExpand: Boolean,
+    withEndSquish: Boolean,
 ): JumpAnimationState {
     val state = remember(scope, interactionSource) {
         JumpAnimationState(
@@ -27,6 +30,8 @@ internal fun rememberJumpAnimationState(
             translation = Animatable(initialValue = 0f),
             scope = scope,
             interactionSource = interactionSource,
+            withTopExpand = withTopExpand,
+            withEndSquish = withEndSquish,
         )
     }
 
@@ -50,7 +55,7 @@ internal fun Modifier.jumpOnClick(state: JumpAnimationState): Modifier =
             interactionSource = state.interactionSource,
             indication = null,
             onClick = {
-                // don't set click here, this is handled by the 
+                // don't set click here, this is handled by the
             },
         )
         .graphicsLayer {

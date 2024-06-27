@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -38,11 +39,25 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+data class Item(
+    val emoji: String,
+    val withTopExpand: Boolean,
+    val withEndSquish: Boolean,
+)
+
 @Composable
 private fun Screen() {
-    val emojis = remember { listOf("🍞", "🍦", "🍿") }
+    val emojis = remember {
+        listOf(
+            Item("🍞", withTopExpand = false, withEndSquish = false),
+            Item("🍦", withTopExpand = false, withEndSquish = true),
+            
+            Item("🍿", withTopExpand = true, withEndSquish = true),
+        )
+    }
     Column(
         modifier = Modifier
+            .statusBarsPadding()
             .fillMaxWidth()
             .background(Color(0xFFFBEACC).copy(alpha = 0.48f))
             .padding(top = 104.dp, bottom = 24.dp)
@@ -50,9 +65,9 @@ private fun Screen() {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Row {
-            emojis.take(3).forEach { emoji ->
+            emojis.take(3).forEach { item ->
                 JumpingEmoji(
-                    emoji = emoji,
+                    item = item,
                     modifier = Modifier.weight(1f),
                 )
             }
@@ -62,7 +77,7 @@ private fun Screen() {
 
 @Composable
 private fun JumpingEmoji(
-    emoji: String,
+    item: Item,
     modifier: Modifier = Modifier,
 ) {
     var counter by remember { mutableIntStateOf(0) }
@@ -72,10 +87,16 @@ private fun JumpingEmoji(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-            text = "$emoji",
+            text = item.emoji,
             fontSize = 96.sp,
             modifier = Modifier
-                .jumpOnClick(rememberJumpAnimationState({ counter++ }))
+                .jumpOnClick(
+                    rememberJumpAnimationState(
+                        withTopExpand = item.withTopExpand,
+                        withEndSquish = item.withEndSquish,
+                        onClick = { counter++ },
+                    )
+                )
         )
 
         Text(
