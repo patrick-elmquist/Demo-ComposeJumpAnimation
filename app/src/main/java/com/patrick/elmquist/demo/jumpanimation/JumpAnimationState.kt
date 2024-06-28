@@ -12,12 +12,12 @@ import kotlinx.coroutines.launch
 @Stable
 class JumpAnimationState(
     val interactionSource: MutableInteractionSource,
-    private val scope: CoroutineScope,
+    val scope: CoroutineScope,
 ) {
+    private var animation: Job? = null
+
     val scale = Animatable(initialValue = 1f)
     val translation = Animatable(initialValue = 0f)
-
-    private var animation: Job? = null
 
     fun onPress() = launchAnimation {
         scale.snapTo(defaultScale)
